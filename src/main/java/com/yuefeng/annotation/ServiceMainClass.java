@@ -13,7 +13,6 @@ public class ServiceMainClass {
         serviceA.callB();
     }
 
-    // todo: jdk版本待考量
     public static <T> T getInstance(Class<T> t) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         T service =  t.newInstance();
         Field[] fields = t.getDeclaredFields();
@@ -21,7 +20,7 @@ public class ServiceMainClass {
             if (field.isAnnotationPresent(SimpleInject.class)) {
                 if (!field.isAccessible()) field.setAccessible(true);
                 Class<?> fieldClass = field.getType();
-                field.set(t, getInstance(fieldClass));
+                field.set(service, getInstance(fieldClass));
             }
         }
 
