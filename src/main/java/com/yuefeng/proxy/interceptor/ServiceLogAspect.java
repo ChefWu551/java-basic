@@ -2,8 +2,6 @@ package com.yuefeng.proxy.interceptor;
 
 import com.yuefeng.annotation.annotations.Aspect;
 import com.yuefeng.proxy.service.ServiceA;
-import com.yuefeng.proxy.service.ServiceB;
-import com.yuefeng.proxy.service.impl.ServiceAImpl;
 import com.yuefeng.proxy.service.impl.ServiceBImpl;
 
 import java.lang.reflect.Method;
