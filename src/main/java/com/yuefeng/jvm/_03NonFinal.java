@@ -1,10 +1,10 @@
 package com.yuefeng.jvm;
 
 /**
- * final类型的数据，在编译的时候就已经带着赋值信息了（constant value）
+ * final类型的数据，在编译的时候就已经带着赋值信息了（constant value）,可查看字节码文件
  * 非non-final类型的赋值，对于类变量来说，load阶段的prepare会进行初始化默认值，赋值阶段在clinit阶段，显式初始化
  */
-public class NonFinal {
+public class _03NonFinal {
 
     public static int a = 5;
 
