@@ -13,9 +13,9 @@ package com.yuefeng.jvm;
 public class _06StringTaleTest {
 
     public static void main(String[] args) throws Exception{
-//        question01();
+        question01();
 //        question02();
-        question03();
+//        question03();
 //        Thread.sleep(1000000);
     }
 
