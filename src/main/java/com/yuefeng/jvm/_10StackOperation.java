@@ -26,7 +26,7 @@ public class _10StackOperation {
      * 16 fstore 8
      * 18 ldc2_w #6 <10.0>  double类型，值为10，入栈
      * 21 dstore_2
-     * 22 return
+     * 22 return    void返回类型为空，即return
      */
     public void store(int k, double d) {
         int m = k + 2;
@@ -34,5 +34,34 @@ public class _10StackOperation {
         String str = "chef";
         float f= 10.0f;
         d = 10;
+    }
+
+    /**
+     * 前++与后++区别
+     *  0 bipush 10 i值为10入操作数栈
+     *  2 istore_1 i值为10出操作数栈，存储入局部变量表
+     *  3 iload_1   a 值为10入操作数栈
+     *  4 iinc 1 by 1   局部变量表中，角标为1的位置自增1
+     *  7 istore_2  操作数栈的a值出栈，放入局部变量表为2的位置
+     *
+     *  8 bipush 20 j值为20入栈
+     * 10 istore_3 存储数据变量表，角标位置为3
+     * 11 iinc 3 by 1   数据变量表，角标为3的位置自增1
+     * 14 iload_3   角标为3的位置加载到操作数栈中
+     * 15 istore 4  出栈，局部变量表角标为4保存b值
+     * 17 return    返回结果空
+     */
+    public void plus() {
+        int i = 10;
+        int a = i++;
+
+        int j = 20;
+        int b = ++j;
+    }
+
+    public void plusSelf() {
+        int i = 10;
+        i = i++;
+        System.out.println(i); // 结果是10，看字节码就很清楚，最后一步是 istore_1, 索引1的位置对应的值是10，理解参照 字节码指令++.png
     }
 }
