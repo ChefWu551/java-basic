@@ -1,6 +1,6 @@
 package com.yuefeng.jvm;
 
-public class JavaPTest {
+public class _01JavaPTest {
 
     private String strConstant;
 
@@ -9,7 +9,7 @@ public class JavaPTest {
         byte a = 10;
         int c = a + b;
         System.out.println(c);
-        JavaPTest pTest = new JavaPTest();
+        _01JavaPTest pTest = new _01JavaPTest();
         pTest.printValue();
     }
 
