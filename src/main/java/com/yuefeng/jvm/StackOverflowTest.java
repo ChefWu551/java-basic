@@ -7,9 +7,10 @@ package com.yuefeng.jvm;
 public class StackOverflowTest {
     private static int count = 1;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         System.out.println(count);
         count++;
+//        Thread.sleep(1000);
         main(args);
     }
 }

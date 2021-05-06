@@ -12,7 +12,7 @@ public class NonFinal {
 
     private final int c = 10;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         System.out.println(a);
         System.out.println(b);
     }
