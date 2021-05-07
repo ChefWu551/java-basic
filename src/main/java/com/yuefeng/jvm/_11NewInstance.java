@@ -4,6 +4,9 @@ import java.io.File;
 
 public class _11NewInstance {
 
+    public static void main(String[] args) {
+        System.out.println(Integer.MAX_VALUE);
+    }
     /**
      * 0 new #2 <java/lang/Object>  new一个对象，对象的引用放置堆中
      * 3 dup    复制一个对象
@@ -48,6 +51,12 @@ public class _11NewInstance {
 
         Order.name = "orderName";
         System.out.println(Order.name);
+    }
+
+    public void byteAndByte() {
+        byte[] b = new byte[1024 * 1024 * 5];
+
+        Byte[] bObject = new Byte[1024 * 1024 * 5];
     }
 }
 
