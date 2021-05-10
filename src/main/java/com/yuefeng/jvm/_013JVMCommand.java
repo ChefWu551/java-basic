@@ -2,6 +2,9 @@ package com.yuefeng.jvm;
 
 /**
  * 常用的jvm指令
+ *
+ * -Xms192M -Xmx192M -XX:NewRatio=2 -XX:SurvivorRatio=6 -XX:+PrintGCDetails
+ *
  */
 public class _013JVMCommand {
 
@@ -12,7 +15,7 @@ public class _013JVMCommand {
 
     public static void main(String[] args) throws InterruptedException {
         for (int i=0; i<10000; i++) {
-            Byte[] b = new Byte[1024 * 10];
+            Byte[] b = new Byte[1024 * 20];
             objects[i] = b;
             Thread.sleep(50);
         }
@@ -41,11 +44,19 @@ public class _013JVMCommand {
      *          -class: 查看类装载的参数，如装载类的大小
      *          -gc: 查看gc的详情，各个区(eden,s0,s1,old,permanent/mataSpace) 已使用空间，总空间大小，GC的次数等
      *              使用举例： jstat -gc -t 2401(pid) 5000(interval) 10(times)
+     *              若随着时间的增长ou(old use)列一直增加，则很可能会出现堆溢出
      *          -gccapacity: 同-gc，但是更侧重java堆区域各个区域使用到的最大、最小空间
      *          -gcutil: 同-gc，关注已使用的空间占总空间的占比
      *          -gccause: 与gcutil一致，但会额外输出导致最后一次或当前正在发生的gc原因
+     *          -gcnew: 显示新生代的gc情况
+     *          -gcnewcapacity: 显示新生代最大最小使用空间及gc情况
+     *          -gcold:
+     *          -gcoldcapacity:
+     *          -gcpermcapacity
      *      -t: 增加时间信息，用于计算程序的总时长，可以推断出进程时间范围内的gc频率，以推断进程gc情况是否合理，是否需要增加内存
-     *
+     *          借助这个-t 可以分析单位时间内，新生代，老年代，元空间(永久代)gc的频率，gc的时间，
+     *          若gc时间占进程运行时间的20%，则说明目前堆的压力较大，需要考虑优化问题，
+     *          如果占用时间高达90%，说明几乎没有可用的空间，随时可能会oom
      *      -h<lines>
      *
      *      vmid：
@@ -53,6 +64,27 @@ public class _013JVMCommand {
      *      interval：输出的时间间隔
      *
      *      count: 输出的次数，不写默认无数次
+     */
+
+    /**
+     * jinfo语法：用于查看机器参数配置信息，也可以用于修改参数配置
+     *
+     *
+     */
+
+    /**
+     * jmap导出内存映像文件和内存使用情况
+     *      主动方式：
+     *          jmap -dump:[live,]format=b,file=d:/bb.hprof 16060
+     *              live表示存活的对象，一般说来，要dump出来的文件都比较大，加上live是为了防止导出等待时间过长和解析文件时间过长，尽快找出线上问题并解决
+     *              format=b指定生成的文件的标准格式
+     *      被动方式：
+     *          直接配置vm option: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=filename.hprof
+     *          为了防止进程死亡后死亡信息被清除，在oom前能主动dump出日志信息
+     *      显示堆内存相关信息：
+     *          jmap -heap pid file.txt 例如: jmap -heap 17520 > d:/heap.txt
+     *          jmap -histo pid file.txt
+     *
      */
     public static void t1Run() {
         Thread t1 = new Thread(()->{
