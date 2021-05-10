@@ -32,7 +32,7 @@ public class _09Reference {
         object = null;
         System.out.println("gc前：" + wr.get());
         System.gc();
-        Thread.sleep(1000);
+        Thread.sleep(1000000);
         System.out.println("gc后：" + wr.get());
 
         // 虚引用：本身存在只是为了在对象被回收的时候，发出通知回收情况，一定要结合引用队列使用
