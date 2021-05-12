@@ -11,11 +11,12 @@ public class _013JVMCommand {
     private static Object o1 = new Object();
     private static Object o2 = new Object();
 
-    private static Object[] objects = new Object[10000];
 
     public static void main(String[] args) throws InterruptedException {
+        Object[] objects = new Object[10000];
+
         for (int i=0; i<10000; i++) {
-            Byte[] b = new Byte[1024 * 20];
+            Byte[] b = new Byte[1024 * 200];
             objects[i] = b;
             Thread.sleep(50);
         }
@@ -82,9 +83,48 @@ public class _013JVMCommand {
      *          直接配置vm option: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=filename.hprof
      *          为了防止进程死亡后死亡信息被清除，在oom前能主动dump出日志信息
      *      显示堆内存相关信息：
-     *          jmap -heap pid file.txt 例如: jmap -heap 17520 > d:/heap.txt
+     *          jmap -heap pid file.txt 例如: jmap -heap 17520 > d:/jmap-heap.txt
      *          jmap -histo pid file.txt
      *
+     * jhat：分析jmap生成的文件，jmap生成的文件也可以用jvisual vm打开
+     */
+
+    /**
+     * jstack: 打印jvm线程快照，每一条线程的堆栈集合
+     *      用于分析线程死锁，死循环，资源等待，请求外部资源时间过长，阻塞
+     *      能够直接输出分析的原因，一般是在安全点或者安全区域执行的
+     *      参数使用：
+     *          -F：force 请求不被响应会强制输出
+     *          -l：lock 关于锁的信息
+     *          -m
+     *          -h
+     *      eg:
+     *          jstack pid
+     *          jstack -l pid
+     *          jstack -l pid > jstack-death_lock.txt
+     */
+
+    /**
+     * jcmd: 多功能命令行
+     *  -l：list jvm process list 等同于jps -m
+     *  pid help: 诺列出可以使用的参数
+     *  pid 具体命令：pid help里面的命令
+     */
+
+    /**
+     * gc工具分析使用：
+     *      jvisualvm: 分析hprof文件
+     *      eclips mat: 分析hprof文件
+     *          浅堆(shallow heap)：一个对象所消耗的内存
+     *          深堆(retained heap): 对象的保留集中所有对象的浅堆大小之和，所以必然>=浅堆大小
+     *          保留集：若一个对象A中引用了对象B和对象C，其中对象B还被D对象引用了，C对象只有A对象引用，则此时的保留集是A和C
+     *              对应的原支配树：        优化后的支配树：从优化后的支配树中可以看除，哪些对象之间有直接引用关系，哪些对象在没有食用的时候可以直接被回收
+     *
+     *                    B    C                        C
+     *                  /  \   /                        |
+     *                  D    A                  B   D   A
+     *                                           \  |   /
+     *                                            根节点
      */
     public static void t1Run() {
         Thread t1 = new Thread(()->{
