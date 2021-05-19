@@ -294,7 +294,146 @@ u.getUsed();	// 已经使用堆空间大小
 
 ### 4.1. 默认类加载器
 
+- BootstrapClassLoader引导类加载器--rt.jar;resources.jar
+
+- ExtClassLoader->Launcher(Launcher的子类)扩展类加载器 jre/lib/ext/*.jar
+
+- AppClassLoader->Launcher(Launcher的子类)应用类加载器 CLASSPATH
+
+  以上三个类加载是依次往上继承的关系，使用双亲委派机制和沙箱安全机制加载类的。
+
+  类是按需加载的，使用以上的两个记载机制是为了，保证同一个应用中的加载的类是唯一。
+
+  - 沙箱安全机制
+
+    例如，自己写了一个全类名java.lang.String.java的类，在进行编译的的时候不会报错，但是在引用其类型的方法执行的时候会报错，`java.lang.SecurityException: Prohibited package name: java.lang`，因为classloader会优先使用rt.jar包下的string，防止错误的被引用自定义的类，以起到保护防止本地的类被修改的作用。
+
+#### 4.1.1. 双亲委派机制源码
+
+```
+/**
+     * Loads the class with the specified <a href="#name">binary name</a>.  The
+     * default implementation of this method searches for classes in the
+     * following order:
+     *
+     * <ol>
+     *
+     *   <li><p> Invoke {@link #findLoadedClass(String)} to check if the class
+     *   has already been loaded.  </p></li>
+     *
+     *   <li><p> Invoke the {@link #loadClass(String) <tt>loadClass</tt>} method
+     *   on the parent class loader.  If the parent is <tt>null</tt> the class
+     *   loader built-in to the virtual machine is used, instead.  </p></li>
+     *
+     *   <li><p> Invoke the {@link #findClass(String)} method to find the
+     *   class.  </p></li>
+     *
+     * </ol>
+     *
+     * <p> If the class was found using the above steps, and the
+     * <tt>resolve</tt> flag is true, this method will then invoke the {@link
+     * #resolveClass(Class)} method on the resulting <tt>Class</tt> object.
+     *
+     * <p> Subclasses of <tt>ClassLoader</tt> are encouraged to override {@link
+     * #findClass(String)}, rather than this method.  </p>
+     *
+     * <p> Unless overridden, this method synchronizes on the result of
+     * {@link #getClassLoadingLock <tt>getClassLoadingLock</tt>} method
+     * during the entire class loading process.
+     *
+     * @param  name
+     *         The <a href="#name">binary name</a> of the class
+     *
+     * @param  resolve
+     *         If <tt>true</tt> then resolve the class
+     *
+     * @return  The resulting <tt>Class</tt> object
+     *
+     * @throws  ClassNotFoundException
+     *          If the class could not be found
+     */
+public abstract class ClassLoader {
+    protected Class<?> loadClass(String name, boolean resolve)
+            throws ClassNotFoundException
+    {
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                long t0 = System.nanoTime();
+                try {
+                    if (parent != null) {
+                        // 通过迭代的方法来使用双亲委派机制
+                        c = parent.loadClass(name, false);
+                    } else {
+                        c = findBootstrapClassOrNull(name);
+                    }
+                } catch (ClassNotFoundException e) {
+                }
+
+                if (c == null) {
+                    long t1 = System.nanoTime();
+                    c = findClass(name);
+
+                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                    sun.misc.PerfCounter.getFindClasses().increment();
+                }
+            }
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
+        }
+    }
+}
+```
+
 ### 4.2. 自定义类加载器
+
+#### 4.2.1. 优势
+
+ - 可以拓展类加载器的功能例如：加密、自定义加载方式
+ - 如果觉得原有的加载文件速度比较慢，可以自定义，提高类加载子系统加载文件的效率
+ - 隔离应用和类之间目的，因为判断加载的类是否相等，除了要类的全类名要一致以外，还需要类加载器是同一个，这样才能保证加载到方法区中的实例对象类型Kclass是唯一的
+
+#### 4.2.2. 实现方法
+
+- 重写loadClass方法，不推荐，会破坏双亲委派机制
+- 重写loadClass方法调用的findClass->URLClassLoader方法，保留双拼委派机制
+
+#### 4.2.3. 加密实现
+
+ - 通过加密算法加密编译好的class文件
+ - 在加载指定类的时候，使用指定的类加载器来加载，累加器里面对二进制流文件进行了解密
+
+#### 4.2.4. tomcat类加载器的实现
+
+- 核心：通过重写Common类加载器加载${catalina.home}/lib/ 目录下的类库
+- 随后**Catalina** 和**Shared** 继承了Common类加载器加载器加载catalina.properties的配置文件中server.loader的资源
+
+#### 4.2.5. 类的主动引用与被动引用
+
+​	判断是否主动引用还是被动引用，只需要看是不是会执行clinit方法（类加载时候的初始化步骤）
+
+- 主动引用
+
+  - ```java
+    *      1.  创建类的实例，new对象
+    *      2.  访问类或者接口的静态变量，或对该静态变量赋值
+    *      3.  调用类的静态方法
+    *      4.  通过反射操作这个类
+    *      5.  初始化一个类的子类，这个类也会被跟着初始化
+    *      6.  Java虚拟机启动时被标记为启动类的类
+    *      7.  jdk1.7以后支持动态语言
+    ```
+
+- 被动引用
+
+  - ```java
+    *      1.  子对象引用父对象的静态字段不会导致子对象初始化
+    *      2.  引用类的常量信息 eg: static final 类型的常量
+    *      3.  通过数组来引用类
+    ```
 
 ## 5. 性能调优篇
 
