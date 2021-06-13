@@ -1,6 +1,6 @@
 package com.yuefeng.jvm;
 
-public class _098byteAndByte {
+public class _098byteVSByte {
 
     public static void main(String[] args) throws InterruptedException {
 //        byte b = 127;
