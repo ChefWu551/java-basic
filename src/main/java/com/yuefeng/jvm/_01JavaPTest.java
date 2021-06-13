@@ -4,10 +4,14 @@ public class _01JavaPTest {
 
     private String strConstant;
 
+    private static int aaa = 10;
+
     public static void main(String[] args) {
         int b = 10000000;
-        byte a = 10;
-        int c = a + b;
+        byte a = 1;
+        int c = a + b + aaa;
+        final int d = 1;
+        final int f = 1122;
         System.out.println(c);
         _01JavaPTest pTest = new _01JavaPTest();
         pTest.printValue();
@@ -17,11 +21,11 @@ public class _01JavaPTest {
     /**
      * 知识点1：
      *      根据字节码反编译的文件可以知道：
-     *      byte/short/boolean/char/int/float:在局部变量表中占用的长度是1
-     *      long/double:在局部变量表中占用的长度是2，可以根据局部变量表的索引序号(index)来查看
+     *      byte/short/boolean/char/int/float:在局部变量表中占用的槽位（slot）是1
+     *      long/double:在局部变量表中占用的槽位（slot）是2，可以根据局部变量表的索引序号(index)来查看
      *
      * 知识点2：
-     *      以下局部变量表存放的有四个变量，
+     *      printValue()方法所对应的，局部变量表存放的有四个变量，
      *      分别是，this(非静态方法特有的)、k、m、n
      *
      *  知识点3：
